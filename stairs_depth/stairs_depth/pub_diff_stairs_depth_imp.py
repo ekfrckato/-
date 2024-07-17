@@ -89,7 +89,11 @@ class DepthArraySubscriber(Node):
             self.publisher_stairs_check.publish(stairs_check)
 
         #publish
-        xnew = np.linspace(0, len(y) - 1, num=len(y))
+        if np.size(y) == 0 :
+            xnew = np.linspace(0, 1, 1)
+        else :
+            xnew = np.linspace(0, np.size(y) - 1, num=np.size(y))
+        xnew.tolist()
         depth_imp_img = Float32MultiArray([xnew, y_scaled])
         depth_imp_img.data = depth_imp_img
         self.publisher_depth_img.publish(depth_imp_img)
@@ -127,3 +131,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
