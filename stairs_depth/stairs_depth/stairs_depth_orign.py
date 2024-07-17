@@ -53,10 +53,10 @@ class ImageListener(Node):
             central_column_depth_values = cv_image[:, center_column]
             # 깊이 그래프 이미지 생성
             depth_graph_img = plot_depth_graph(central_column_depth_values, height=480, width=640)
-
+    
             depth_array_msg = Float32MultiArray()
             # depth_array_msg.data = central_column_depth_values.tolist() 
-            depth_array_msg.data = [float(value) for value in central_column_depth_values]
+            depth_array_msg.data = [float(value) for value in np.flip(central_column_depth_values)]
             depth_array_msg.reverse()
             self.publisher_.publish(depth_array_msg)
 
@@ -112,3 +112,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
