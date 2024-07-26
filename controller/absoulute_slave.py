@@ -62,30 +62,31 @@ class EncoderControll(Node):
         present_position0 = acctual_position0 - self.init_position0
         present_position1 = acctual_position1 - self.init_position1
 
-        print(f"Channel 0 Position: {present_position0} + {self.present_voltage0}")
-        print(f"Channel 1 Position: {present_position1} + {self.present_voltage1}")
+        print(f"present 0 Position: {present_position0}")
+        print(f"present 1 Position: {present_position1}")
 
-        if -10 < present_position0 < 10:
+        zero_area = 6
+        if -zero_area < present_position0 < zero_area:
             absolute_position0= 0
         else:
-            if 10 < present_position0 :
-                absolute_position0 = present_position0 - 10
-            elif present_position0 < -10:
-                absolute_position0 = present_position0 + 10
+            if zero_area < present_position0 :
+                absolute_position0 = present_position0 - zero_area
+            elif present_position0 < -zero_area:
+                absolute_position0 = present_position0 + zero_area
 
-        if -10 < present_position1 < 10:
+        if -zero_area < present_position1 < zero_area:
             absolute_position1 = 0
         else:
-            if 10 < present_position1 :
-                absolute_position1 = present_position1 - 10
-            elif present_position1 < -10:
-                absolute_position1 = present_position1 + 10
+            if zero_area < present_position1 :
+                absolute_position1 = present_position1 - zero_area
+            elif present_position1 < -zero_area:
+                absolute_position1 = present_position1 + zero_area
 
-        print(f"Channel 0 fix Position: {absolute_position0} + {self.present_voltage0}")
-        print(f"Channel 1 fix Position: {absolute_position1} + {self.present_voltage1}")
+        pub_linear_vel = (absolute_position1/23)*0.5 
+        pub_angler_vel = (absolute_position0/25)*1.5
 
-        pub_linear_vel = (absolute_position1/18)*0.5 
-        pub_angler_vel = (absolute_position0/27)*1.5
+        print(f"absolute 0 fix Position: {absolute_position0} + {pub_linear_vel} + {Vector3(x=pub_linear_vel, y=0.0, z=0.0)}")
+        print(f"absolute 1 fix Position: {absolute_position1} + {pub_angler_vel} + {Vector3(x=0.0, y=0.0, z=pub_angler_vel)}")
 
         encoder_msg = Twist()
         encoder_msg.linear = Vector3(x=pub_linear_vel, y=0.0, z=0.0)
@@ -108,3 +109,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
