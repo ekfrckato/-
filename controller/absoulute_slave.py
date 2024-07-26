@@ -65,28 +65,29 @@ class EncoderControll(Node):
         print(f"present 0 Position: {present_position0}")
         print(f"present 1 Position: {present_position1}")
 
-        zero_area = 6
-        if -zero_area < present_position0 < zero_area:
+        zero_area_linear = 6
+        zero_area_angular = 3
+        if -zero_area_angular < present_position0 < zero_area_angular:
             absolute_position0= 0
         else:
-            if zero_area < present_position0 :
-                absolute_position0 = present_position0 - zero_area
-            elif present_position0 < -zero_area:
-                absolute_position0 = present_position0 + zero_area
+            if zero_area_angular < present_position0 :
+                absolute_position0 = present_position0 - zero_area_angular
+            elif present_position0 < -zero_area_angular:
+                absolute_position0 = present_position0 + zero_area_angular
 
-        if -zero_area < present_position1 < zero_area:
+        if -zero_area_linear < present_position1 < zero_area_linear:
             absolute_position1 = 0
         else:
-            if zero_area < present_position1 :
-                absolute_position1 = present_position1 - zero_area
-            elif present_position1 < -zero_area:
-                absolute_position1 = present_position1 + zero_area
+            if zero_area_linear < present_position1 :
+                absolute_position1 = present_position1 - zero_area_linear
+            elif present_position1 < -zero_area_linear:
+                absolute_position1 = present_position1 + zero_area_linear
 
         pub_linear_vel = (absolute_position1/23)*0.5 
-        pub_angler_vel = (absolute_position0/25)*1.5
+        pub_angler_vel = (absolute_position0/50)*1.5
 
-        print(f"absolute 0 fix Position: {absolute_position0} + {pub_linear_vel} + {Vector3(x=pub_linear_vel, y=0.0, z=0.0)}")
-        print(f"absolute 1 fix Position: {absolute_position1} + {pub_angler_vel} + {Vector3(x=0.0, y=0.0, z=pub_angler_vel)}")
+        print(f"absolute 0 fix Position: {absolute_position1} + {pub_linear_vel} + {Vector3(x=pub_linear_vel, y=0.0, z=0.0)}")
+        print(f"absolute 1 fix Position: {absolute_position0} + {pub_angler_vel} + {Vector3(x=0.0, y=0.0, z=pub_angler_vel)}")
 
         encoder_msg = Twist()
         encoder_msg.linear = Vector3(x=pub_linear_vel, y=0.0, z=0.0)
@@ -109,4 +110,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
