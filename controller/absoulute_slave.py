@@ -42,7 +42,7 @@ class EncoderControll(Node):
 
 
         # 타이머 설정 (0.1초마다 pub_encoder_val 호출)
-        self.timer = self.create_timer(0.1, self.pub_encoder_val)
+        self.timer = self.create_timer(0.01, self.pub_encoder_val)
         
     def onVoltageChange0(self, voltageInput, voltage):
         self.present_voltage0 = voltage
@@ -59,35 +59,40 @@ class EncoderControll(Node):
         acctual_position0 = ((float(self.present_voltage0) / (5 / 1024)) * 0.3515625)
         acctual_position1 = ((float(self.present_voltage1) / (5 / 1024)) * 0.3515625)
         
-        present_position0 = acctual_position0 - self.init_position0
-        present_position1 = acctual_position1 - self.init_position1
+        acctual_angular = acctual_position0 - self.init_position0
+        acctual_linear = acctual_position1 - self.init_position1
 
-        print(f"present 0 Position: {present_position0}")
-        print(f"present 1 Position: {present_position1}")
+        print(f"present 0 Position: {acctual_angular}")
+        print(f"present 1 Position: {acctual_linear}")
 
         zero_area_linear = 6
-        zero_area_angular = 3
-        if -zero_area_angular < present_position0 < zero_area_angular:
-            absolute_position0= 0
+        zero_area_angular = 9
+        if -zero_area_angular < acctual_angular < zero_area_angular:
+            angular= 0
         else:
-            if zero_area_angular < present_position0 :
-                absolute_position0 = present_position0 - zero_area_angular
-            elif present_position0 < -zero_area_angular:
-                absolute_position0 = present_position0 + zero_area_angular
+            if zero_area_angular < acctual_angular :
+                angular = acctual_angular - zero_area_angular
+            elif acctual_angular < -zero_area_angular:
+                angular = acctual_angular + zero_area_angular
 
-        if -zero_area_linear < present_position1 < zero_area_linear:
-            absolute_position1 = 0
+        if -zero_area_linear < acctual_linear < zero_area_linear:
+            linear = 0
         else:
-            if zero_area_linear < present_position1 :
-                absolute_position1 = present_position1 - zero_area_linear
-            elif present_position1 < -zero_area_linear:
-                absolute_position1 = present_position1 + zero_area_linear
+            if zero_area_linear < acctual_linear :
+                linear = acctual_linear - zero_area_linear
+            elif acctual_linear < -zero_area_linear:
+                linear = acctual_linear + zero_area_linear
 
-        pub_linear_vel = (absolute_position1/23)*0.5 
-        pub_angler_vel = (absolute_position0/50)*1.5
+        linear_max = 0.5
+        angular_max = 1.5
+        linear = (linear/23)*0.5 
+        angular = (angular/50)*1.5
 
-        print(f"absolute 0 fix Position: {absolute_position1} + {pub_linear_vel} + {Vector3(x=pub_linear_vel, y=0.0, z=0.0)}")
-        print(f"absolute 1 fix Position: {absolute_position0} + {pub_angler_vel} + {Vector3(x=0.0, y=0.0, z=pub_angler_vel)}")
+        pub_angler_vel = angular * linear / linear_max
+        pub_linear_vel = linear
+
+        print(f"linear: {linear} + cmd : {Vector3(x=pub_linear_vel, y=0.0, z=0.0)}")
+        print(f"angular: {angular} + cmd : {Vector3(x=0.0, y=0.0, z=pub_angler_vel)}")
 
         encoder_msg = Twist()
         encoder_msg.linear = Vector3(x=pub_linear_vel, y=0.0, z=0.0)
@@ -107,6 +112,9 @@ def main():
         node.voltageInput1.close()
         node.destroy_node()
         rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
 
 if __name__ == '__main__':
     main()
