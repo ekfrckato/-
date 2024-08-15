@@ -86,17 +86,16 @@ class EncoderControll(Node):
         linear_max = 0.5
         angular_max = 1.5
         linear = (linear/23)*0.5 
-        angular = (angular/50)*1.5
-
+        angular = (angular/25)*1.5
 
         if linear == 0:
             pub_angler_vel = angular
         else :
-            pub_angler_vel = angular * linear / linear_max
+            pub_angler_vel = angular * abs(linear / linear_max)
         pub_linear_vel = linear
 
-        # if linear == 0 and angular > 0.25 :
-
+        if pub_angler_vel > 1.5 :
+            pub_angler_vel = 1.5
 
         print(f"linear: {linear} + cmd : {Vector3(x=pub_linear_vel, y=0.0, z=0.0)}")
         print(f"angular: {angular} + cmd : {Vector3(x=0.0, y=0.0, z=pub_angler_vel)}")
@@ -119,9 +118,6 @@ def main():
         node.voltageInput1.close()
         node.destroy_node()
         rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
 
 if __name__ == '__main__':
     main()
