@@ -29,6 +29,11 @@ Moving around:
    a    s    d
         x
 
+pole :
+   q    -    e
+   -    -    -
+        -
+
 space key, s : force stop
 
 CTRL-C to quit
@@ -86,7 +91,6 @@ def main():
     pole_msg = String()
     node_pole = rclpy.create_node('control_pole')
     pub_pole = node_pole.create_publisher(String, '/stairs_check', qos)
-
     status = 0
     target_linear_velocity = 0.0
     target_angular_velocity = 0.0
@@ -127,7 +131,11 @@ def main():
                 target_angular_velocity = 0.0
                 print_vels(target_linear_velocity, target_angular_velocity)
             elif key == 'e' or key == 'E':
-                pole_msg.data = 'aaa'
+                pole_msg.data = 'over'
+                pub_pole.publish(pole_msg)
+                print("Successfully sent the msg for pole")
+            elif key == 'q' or key == 'Q':
+                pole_msg.data = 'back'
                 pub_pole.publish(pole_msg)
                 print("Successfully sent the msg for pole")
             else:
