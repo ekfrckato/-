@@ -63,29 +63,35 @@ class DepthArraySubscriber(Node):
         self.publisher_diff_array.publish(gradient_msg)
 
         # 계단 여부 체크 후 퍼블리시
-        wall_diff = 3
-        wall_height = 3
-        floor_diff = 1
-        floor_width = 3
-        index_wall_N = 0
+        index_wall_height = 0
         index_floor_N = 0
         stair_being_there = False
+        negative_duration = 0  # 음수가 유지되는 기간
+        positive_duration = 0  # 양수가 유지되는 기간
+        min_negative_duration = 5  # 음수가 최소한 유지되어야 하는 기간
+        min_positive_duration = 5  # 양수가 최소한 유지되어야 하는 기간
+        pattern_count = 0
+        required_pattern_count = 2  # 연속적인 패턴이 나타나는 최소 횟수
+        state = 'neutral'  # 현재 상태를 추적 (neutral, negative, positive)
 
         for i in range(len(gradients)):
-            # 15픽셀 이상이고 -3.6 이하의 기울기 조건
-            if gradients[i] > wall_diff:
-                index_wall_N += 1
-            
-            # 벽의 높이가 15픽셀 이상인 경우
-            if index_wall_N >= wall_height:
-                # 벽 이후 10픽셀 이상이고 1 이상의 기울기가 연속적으로 나오는지 확인
-                for j in range(i + 1, len(gradients)):
-                    if gradients[j] < floor_diff and (j - i) > floor_width:
-                        index_floor_N += 1
-                        break
-            
-            # 벽이 15픽셀 이상이고, 10픽셀 이상 1 이상의 기울기가 연속적으로 나오는 경우
-            if index_wall_N >= wall_height and index_floor_N >= 1:
+            if gradients[i] <= 0:
+                negative_duration += 1
+                if state == 'positive' and positive_duration >= min_positive_duration:
+                    # 양수에서 음수로 전환될 때, 양수가 일정 시간 이상 유지된 경우 패턴으로 인정
+                    pattern_count += 1
+                    positive_duration = 0
+                state = 'negative'
+            else:
+                positive_duration += 1
+                if state == 'negative' and negative_duration >= min_negative_duration:
+                    # 음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
+                    pattern_count += 1
+                    negative_duration = 0
+                state = 'positive'
+
+            # 연속적인 패턴이 설정된 횟수 이상 발생하면 계단이 있다고 판단
+            if pattern_count >= required_pattern_count:
                 stair_being_there = True
                 break
 
@@ -94,6 +100,8 @@ class DepthArraySubscriber(Node):
             stairs_check = String()
             stairs_check.data = 'over'
             self.publisher_stairs_check.publish(stairs_check)
+
+
         # xnew와 y_scaled 그래프 그리기 부분
         if np.size(y) == 0:
             xnew = np.linspace(0, 1, 1)
