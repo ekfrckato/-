@@ -40,7 +40,7 @@ class DepthArraySubscriber(Node):
         noise_value_num = [i for i in range(len(y)) if np.isclose(y[i], 0.0, atol=1e-6)] 
         for idx in noise_value_num:
             if idx == 0:
-                y[idx] = y[idx + 1] if idx + 1 < len(y) else y[idx]
+                y[idx] = y[idx + 1] if (idx + 1) < len(y) else y[idx]
             elif idx == len(y) - 1:
                 y[idx] = y[idx - 1]
             else:
@@ -63,27 +63,24 @@ class DepthArraySubscriber(Node):
         self.publisher_diff_array.publish(gradient_msg)
 
         # 계단 여부 체크 후 퍼블리시
-        # 계단 여부 체크 후 퍼블리시
-        wall_diff = -3.6
-        wall_height = 15
+        wall_diff = 3
+        wall_height = 3
         floor_diff = 1
-        floor_width = 10
+        floor_width = 3
         index_wall_N = 0
         index_floor_N = 0
         stair_being_there = False
 
         for i in range(len(gradients)):
             # 15픽셀 이상이고 -3.6 이하의 기울기 조건
-            if gradients[i] < wall_diff:
+            if gradients[i] > wall_diff:
                 index_wall_N += 1
-            else:
-                continue
             
             # 벽의 높이가 15픽셀 이상인 경우
             if index_wall_N >= wall_height:
                 # 벽 이후 10픽셀 이상이고 1 이상의 기울기가 연속적으로 나오는지 확인
                 for j in range(i + 1, len(gradients)):
-                    if gradients[j] > floor_diff and (j - i) > floor_width:
+                    if gradients[j] < floor_diff and (j - i) > floor_width:
                         index_floor_N += 1
                         break
             
@@ -97,7 +94,6 @@ class DepthArraySubscriber(Node):
             stairs_check = String()
             stairs_check.data = 'over'
             self.publisher_stairs_check.publish(stairs_check)
-
         # xnew와 y_scaled 그래프 그리기 부분
         if np.size(y) == 0:
             xnew = np.linspace(0, 1, 1)
