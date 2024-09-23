@@ -85,9 +85,10 @@ class DepthArraySubscriber(Node):
             else:
                 positive_duration += 1
                 if (state == 'negative' or state == 'neutral') and (negative_duration >= min_negative_duration):
-                    # 음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
-                    pattern_count += 1
-                    negative_duration = 0
+                    if not y_scaled[i] == np.max(y_scaled)
+                        #음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
+                        pattern_count += 1
+                        negative_duration = 0
                     if pattern_count ==1:
                         detect_depth = y_scaled[i] 
                         print(detect_depth)
