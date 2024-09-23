@@ -68,8 +68,8 @@ class DepthArraySubscriber(Node):
         stair_being_there = False
         negative_duration = 0  # 음수가 유지되는 기간
         positive_duration = 0  # 양수가 유지되는 기간
-        min_negative_duration = 5  # 음수가 최소한 유지되어야 하는 기간
-        min_positive_duration = 5  # 양수가 최소한 유지되어야 하는 기간
+        min_negative_duration = 40  # 음수가 최소한 유지되어야 하는 기간
+        min_positive_duration = 60  # 양수가 최소한 유지되어야 하는 기간
         pattern_count = 0
         required_pattern_count = 2  # 연속적인 패턴이 나타나는 최소 횟수
         state = 'neutral'  # 현재 상태를 추적 (neutral, negative, positive)
@@ -77,22 +77,26 @@ class DepthArraySubscriber(Node):
         for i in range(len(gradients)):
             if gradients[i] <= 0:
                 negative_duration += 1
-                if state == 'positive' and positive_duration >= min_positive_duration:
+                if (state == 'positive' or state == 'neutral') and (positive_duration >= min_positive_duration):
                     # 양수에서 음수로 전환될 때, 양수가 일정 시간 이상 유지된 경우 패턴으로 인정
                     pattern_count += 1
                     positive_duration = 0
                 state = 'negative'
             else:
                 positive_duration += 1
-                if state == 'negative' and negative_duration >= min_negative_duration:
+                if (state == 'negative' or state == 'neutral') and (negative_duration >= min_negative_duration):
                     # 음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
                     pattern_count += 1
                     negative_duration = 0
+                    if pattern_count ==1:
+                        detect_depth = y_scaled[i] 
+                        print(detect_depth)
                 state = 'positive'
 
             # 연속적인 패턴이 설정된 횟수 이상 발생하면 계단이 있다고 판단
             if pattern_count >= required_pattern_count:
                 stair_being_there = True
+                pattern_count = 0
                 break
 
         if stair_being_there:
