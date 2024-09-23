@@ -104,6 +104,7 @@ class DepthArraySubscriber(Node):
 
         if stair_being_there:
             print('계단이 있음')
+            print(y_scaled[i]," : num : ", i)
             stairs_check = String()
             stairs_check.data = 'over'
             self.publisher_stairs_check.publish(stairs_check)
