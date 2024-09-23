@@ -55,7 +55,7 @@ class DepthArraySubscriber(Node):
         # 기울기 계산
         gradients = np.diff(y_scaled)
         print(gradients)
-
+        print(y_scaled)
         # 퍼블리시 관련 부분은 그대로 유지
         gradients2list = gradients.tolist()
         gradient_msg = Float32MultiArray()
@@ -78,22 +78,24 @@ class DepthArraySubscriber(Node):
             if gradients[i] <= 0:
                 negative_duration += 1
                 if (state == 'positive' or state == 'neutral') and (positive_duration >= min_positive_duration):
-                    # 양수에서 음수로 전환될 때, 양수가 일정 시간 이상 유지된 경우 패턴으로 인정
-                    pattern_count += 1
-                    print(pattern_count," : num : ", i)
-                    positive_duration = 0
+                    if not (y_scaled[i] >= 130 and y_scaled[i] <= 240): 
+                        # 양수에서 음수로 전환될 때, 양수가 일정 시간 이상 유지된 경우 패턴으로 인정
+                        pattern_count += 1
+                        positive_duration = 0
                 state = 'negative'
             else:
                 positive_duration += 1
                 if (state == 'negative' or state == 'neutral') and (negative_duration >= min_negative_duration):
-                    if not y_scaled[i] == np.max(y_scaled)
-                        #음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
+                    if not (y_scaled[i] >= 130 and y_scaled[i] <= 240):  # 130 ~ 145 값 무시
+                        print( ": ", y_scaled[i]," : ", i)
+                        # 음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
                         pattern_count += 1
-                        print(pattern_count," : num : ", i)
                         negative_duration = 0
+                    else:
+                        continue
                     if pattern_count ==2:
-                        detect_depth = y_scaled[i] 
-                        print(detect_depth," : num : ", i)
+                        detect_depth = y_scaled[i]
+                        print(height - detect_depth) 
                 state = 'positive'
 
             # 연속적인 패턴이 설정된 횟수 이상 발생하면 계단이 있다고 판단
