@@ -80,20 +80,17 @@ class DepthArraySubscriber(Node):
                 if (state == 'positive' or state == 'neutral') and (positive_duration >= min_positive_duration):
                     # 양수에서 음수로 전환될 때, 양수가 일정 시간 이상 유지된 경우 패턴으로 인정
                     pattern_count += 1
-                    print(pattern_count," : num : ", i)
                     positive_duration = 0
                 state = 'negative'
             else:
                 positive_duration += 1
                 if (state == 'negative' or state == 'neutral') and (negative_duration >= min_negative_duration):
-                    if not y_scaled[i] == np.max(y_scaled)
-                        #음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
-                        pattern_count += 1
-                        print(pattern_count," : num : ", i)
-                        negative_duration = 0
-                    if pattern_count ==2:
+                    # 음수에서 양수로 전환될 때, 음수가 일정 시간 이상 유지된 경우 패턴으로 인정
+                    pattern_count += 1
+                    negative_duration = 0
+                    if pattern_count ==1:
                         detect_depth = y_scaled[i] 
-                        print(detect_depth," : num : ", i)
+                        print(detect_depth)
                 state = 'positive'
 
             # 연속적인 패턴이 설정된 횟수 이상 발생하면 계단이 있다고 판단
@@ -104,7 +101,6 @@ class DepthArraySubscriber(Node):
 
         if stair_being_there:
             print('계단이 있음')
-            print(y_scaled[i]," : num : ", i)
             stairs_check = String()
             stairs_check.data = 'over'
             self.publisher_stairs_check.publish(stairs_check)
