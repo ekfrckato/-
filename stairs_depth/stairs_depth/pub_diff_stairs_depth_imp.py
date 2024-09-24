@@ -132,7 +132,8 @@ class DepthArraySubscriber(Node):
             
             if prev_point is not None:
                 cv2.line(img, prev_point, curr_point, (0, 255, 0), 2)
-            
+
+        
             prev_point = curr_point
         
         cv2.imshow('Depth Array', img)
